@@ -8,12 +8,12 @@ from eth_account import Account
 from loguru import logger
 from web3 import Web3
 
-url = "https://api.jager.meme/api/holder/claimReward"
 
 private_key = ""  # 请替换为你的实际私钥
 wallet_address = Account.from_key(private_key).address
 limit_jagerbnb = 150000  # 自己设置达到多少jagerbnb就去领取，太少了gas不划算
 
+url = "https://api.jager.meme/api/holder/claimReward"
 payload = {"address": wallet_address}
 headers = {
     "accept": "application/json",
