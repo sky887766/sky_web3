@@ -8,12 +8,13 @@ from eth_account import Account
 from loguru import logger
 from web3 import Web3
 
-
 private_key = ""  # 请替换为你的实际私钥
-wallet_address = Account.from_key(private_key).address
+bsc_rpc = ""
 limit_jagerbnb = 150000  # 自己设置达到多少jagerbnb就去领取，太少了gas不划算
-bsc_rpc = "" # 替换一个你常用的BSC RPC
+
+last_jagerbnb = 0
 w3 = Web3(Web3.HTTPProvider(bsc_rpc))
+wallet_address = Account.from_key(private_key).address
 
 url = "https://api.jager.meme/api/holder/claimReward"
 payload = {"address": wallet_address}
@@ -46,6 +47,7 @@ abi = [
 while True:
     try:
         response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
+        print(response.text)
         if response.status_code == 200 and response.json()['message'] == 'OK':
             data = response.json()
             jager = data['data']['jager']
@@ -54,6 +56,11 @@ while True:
             sign = data['data']['sign']
             logger.info(f'当前待领取Jager: {jager}')
             logger.info(f'当前待领取JagerBNB: {jagerBNB}')
+            if last_jagerbnb == jagerBNB:
+                logger.error('API返回有问题,当前JagerBNB已领取过...')
+                time.sleep(10 * 60)
+                continue
+            last_jagerbnb = jagerBNB
             if int(float(jagerBNB)) >= limit_jagerbnb:
                 logger.info('JagerBNB待领取达到设定的目标,准备领取...')
                 contract_address = "0x0b29e8FdA0a77abD089c23736efA9E269bA101f5"
