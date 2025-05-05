@@ -13,6 +13,7 @@ bsc_rpc = ""
 limit_jagerbnb = 150000  # 自己设置达到多少jagerbnb就去领取，太少了gas不划算
 
 last_jagerbnb = 0
+fail_time = 0
 w3 = Web3(Web3.HTTPProvider(bsc_rpc))
 wallet_address = Account.from_key(private_key).address
 
@@ -47,7 +48,6 @@ abi = [
 while True:
     try:
         response = requests.request("POST", url, data=json.dumps(payload), headers=headers)
-        print(response.text)
         if response.status_code == 200 and response.json()['message'] == 'OK':
             data = response.json()
             jager = data['data']['jager']
@@ -86,6 +86,10 @@ while True:
                     logger.success(f"领取成功,10分钟后再次查询...")
                 else:
                     logger.error(f"领取失败,10分钟后再次查询...")
+                    fail_time += 1
+                    if fail_time > 5:
+                        logger.error(f'API估计宕了...')
+                        sys.exit()
             else:
                 logger.warning('JagerBNB待领取太少了,10分钟后再次查询...')
             time.sleep(10 * 60)
@@ -95,3 +99,4 @@ while True:
     except Exception as e:
         logger.error(e)
         time.sleep(10)
+
