@@ -84,6 +84,7 @@ while True:
                 receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
                 if receipt['status'] == 1:
                     logger.success(f"领取成功,10分钟后再次查询...")
+                    fail_time = 0
                 else:
                     logger.error(f"领取失败,10分钟后再次查询...")
                     fail_time += 1
